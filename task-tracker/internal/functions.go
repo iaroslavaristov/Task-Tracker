@@ -59,3 +59,26 @@ func ReadTasksFromFile() ([]Task, error) {
 
 	return tasks, nil
 }
+
+func WriteTasksToFile(tasks []Task) error {
+	filepath := getFilePath()
+	file, err := os.Create(filepath)
+	if err != nil {
+		log.Println("Cannot recreate a file")
+		return err
+	}
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Println("Cannot close the file")
+		}
+	}()
+
+	err = json.NewEncoder(file).Encode(tasks)
+	if err != nil {
+		log.Println("Cannot encode the file")
+		return err
+	}
+
+	return nil
+}
