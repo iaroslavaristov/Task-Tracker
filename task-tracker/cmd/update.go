@@ -1,40 +1,82 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
-	"fmt"
-
+	"errors"
 	"github.com/spf13/cobra"
+	"strconv"
+	"task-tracker/internal"
 )
 
-// updateCmd represents the update command
-var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("update called")
-	},
+func UpdateDescriptionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "update",
+		Short: "Update task",
+		Long: `Update a task by providing the task ID and the new status
+    Example:
+    task-tracker update 1 'new description'
+    `,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return UpdateTaskDescription(args)
+		},
+	}
 }
 
-func init() {
-	rootCmd.AddCommand(updateCmd)
+func UpdateTaskDescription(args []string) error {
+	if len(args) != 2 {
+		return errors.New("Please provide a task ID and the new description")
+	}
 
-	// Here you will define your flags and configuration settings.
+	taskID, err := strconv.ParseInt(args[0], 10, 64)
+	if err != nil {
+		return err
+	}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// updateCmd.PersistentFlags().String("foo", "", "A help for foo")
+	newDescription := args[1]
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// updateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	return internal.UpdateTaskDescription(taskID, newDescription)
+}
+
+func UpdateTaskStatusDone() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "mark-done",
+		Short: "Mark a task as done",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return UpdateTaskStatus(args, internal.StatusDone)
+		},
+	}
+	return cmd
+}
+
+func UpdateTaskStatusInProgress() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "mark-in-progress",
+		Short: "Mark a task as done",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return UpdateTaskStatus(args, internal.StatusInProgress)
+		},
+	}
+	return cmd
+}
+
+func UpdateTaskStatusToDo() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "mark-todo",
+		Short: "Mark a task as done",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return UpdateTaskStatus(args, internal.StatusToDo)
+		},
+	}
+	return cmd
+}
+
+func UpdateTaskStatus(args []string, status internal.Status) error {
+	if len(args) == 0 {
+		return errors.New("please provide a task ID")
+	}
+	taskID, err := strconv.ParseInt(args[0], 10, 64)
+	if err != nil {
+		return err
+	}
+
+	return internal.UpdateTaskStatus(taskID, status)
 }
