@@ -66,3 +66,16 @@ func ListTasks(status Status) error {
 
 	return nil
 }
+
+func TaskStatusFromString(status string) Status {
+	switch status {
+	case "todo":
+		return StatusToDo
+	case "done":
+		return StatusDone
+	case "in-progress":
+		return StatusInProgress
+	default:
+		return StatusNone
+	}
+}
