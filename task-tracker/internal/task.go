@@ -23,11 +23,11 @@ type Task struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-func NewTask(id int64, description string, status Status) *Task {
+func NewTask(id int64, description string) *Task {
 	return &Task{
 		ID:          id,
 		Description: description,
-		Status:      status,
+		Status:      StatusNone, // status by default
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -78,4 +78,25 @@ func TaskStatusFromString(status string) Status {
 	default:
 		return StatusNone
 	}
+}
+
+func AddTask(description string) error {
+	tasks, err := ReadTasksFromFile()
+	if err != nil {
+		log.Println("Cannot read tasks from file:", err)
+		return err
+	}
+
+	var newTaskID int64
+	if len(tasks) > 0 {
+		newTaskID = tasks[len(tasks)-1].ID + 1
+	} else {
+		newTaskID = 1
+	}
+
+	tasks = append(tasks, *NewTask(newTaskID, description))
+
+	fmt.Printf("Added task %d\n", newTaskID)
+
+	return WriteTasksToFile(tasks)
 }
