@@ -1,7 +1,14 @@
 package main
 
-import "task-tracker/cmd"
+import (
+	"log"
+	"task-tracker/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	root := cmd.RootCmd()
+
+	if err := root.Execute(); err != nil {
+		log.Println(err)
+	}
 }
