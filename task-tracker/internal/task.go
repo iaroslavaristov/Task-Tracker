@@ -115,10 +115,43 @@ func DeleteTask(id int64) error {
 	}
 
 	if len(updatedTasks) == len(tasks) {
-		log.Printf("Task with id %d was not fount", id)
+		log.Printf("Task with id %d was not found", id)
 	}
 
 	fmt.Printf("Deleted task %d\n", id)
+
+	return WriteTasksToFile(updatedTasks)
+}
+
+func UpdateTaskStatus(id int64, status Status) error {
+	tasks, err := ReadTasksFromFile()
+	if err != nil {
+		log.Println("Cannot read tasks from file:", err)
+		return err
+	}
+
+	var taskExists bool = false
+	var updatedTasks []Task
+	for _, task := range tasks {
+		if task.ID == id {
+			taskExists = true
+			switch status {
+			case StatusToDo:
+				task.Status = StatusToDo
+			case StatusInProgress:
+				task.Status = StatusInProgress
+			case StatusDone:
+				task.Status = StatusDone
+			}
+			task.UpdatedAt = time.Now()
+		}
+
+		updatedTasks = append(updatedTasks, task)
+	}
+
+	if !taskExists {
+		log.Printf("Task with id %d was not found", id)
+	}
 
 	return WriteTasksToFile(updatedTasks)
 }
