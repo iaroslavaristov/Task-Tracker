@@ -1,6 +1,10 @@
 package internal
 
-import "time"
+import (
+	"fmt"
+	"log"
+	"time"
+)
 
 type Status string
 
@@ -27,4 +31,38 @@ func NewTask(id int64, description string, status Status) *Task {
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
+}
+
+func ListTasks(status Status) error {
+	tasks, err := ReadTasksFromFile()
+	if err != nil {
+		log.Println("Cannot read tasks from file:", err)
+		return err
+	}
+
+	if len(tasks) == 0 {
+		log.Println("No tasks found")
+		return nil
+	}
+
+	var filteredTasks []Task
+
+	switch status {
+	case "all":
+		filteredTasks = tasks
+	default:
+		for _, task := range tasks {
+			if task.Status == status {
+				filteredTasks = append(filteredTasks, task)
+			}
+		}
+	}
+
+	for _, task := range filteredTasks {
+		updatedTimeFormat := task.UpdatedAt.Format("03-05-2025 17:08:09")
+		fmt.Printf("%d %s %s (%s)", task.ID, task.Status, task.Description, updatedTimeFormat)
+	}
+	fmt.Println()
+
+	return nil
 }
