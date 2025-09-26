@@ -100,3 +100,25 @@ func AddTask(description string) error {
 
 	return WriteTasksToFile(tasks)
 }
+
+func DeleteTask(id int64) error {
+	tasks, err := ReadTasksFromFile()
+	if err != nil {
+		log.Println("Cannot read tasks from file:", err)
+	}
+
+	var updatedTasks []Task
+	for _, task := range tasks {
+		if task.ID != id {
+			updatedTasks = append(updatedTasks, task)
+		}
+	}
+
+	if len(updatedTasks) == len(tasks) {
+		log.Printf("Task with id %d was not fount", id)
+	}
+
+	fmt.Printf("Deleted task %d\n", id)
+
+	return WriteTasksToFile(updatedTasks)
+}
